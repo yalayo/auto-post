@@ -8,9 +8,10 @@ interface SidebarProps {
     email: string;
     avatar?: string;
   };
+  logout: () => void;
 }
 
-export default function Sidebar({ user }: SidebarProps) {
+export default function Sidebar({ user, logout }: SidebarProps) {
   const [location, setLocation] = useLocation();
 
   const navigation = [

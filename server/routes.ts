@@ -3,10 +3,20 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateLinkedInPost, enhancePost } from "./services/gemini";
 import { linkedInService, LinkedInService } from "./services/linkedin";
-import { insertPostSchema } from "@shared/schema";
+import { insertPostSchema, insertUserSchema } from "@shared/schema";
+import { hashPassword, comparePasswords, sanitizeUser } from "./services/auth";
 import { z } from "zod";
 
 // Validation schemas
+const authRegisterSchema = insertUserSchema.extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const authLoginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
 const generatePostSchema = z.object({
   prompt: z.string().min(1),
   tone: z.enum(['professional', 'casual', 'inspirational', 'educational']),
@@ -36,7 +46,61 @@ const publishPostSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Authentication routes
+  // User authentication routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const validatedData = authRegisterSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists with this email' });
+      }
+
+      // Hash password and create user
+      const hashedPassword = await hashPassword(validatedData.password);
+      const user = await storage.createUser({
+        ...validatedData,
+        password: hashedPassword,
+      });
+
+      res.status(201).json({ user: sanitizeUser(user) });
+    } catch (error) {
+      console.error('Registration error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      res.status(500).json({ error: 'Registration failed' });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const validatedData = authLoginSchema.parse(req.body);
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(validatedData.email);
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      // Verify password
+      const isValidPassword = await comparePasswords(validatedData.password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      res.json({ user: sanitizeUser(user) });
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // LinkedIn OAuth routes
   app.post('/api/auth/linkedin', async (req, res) => {
     try {
       const state = Math.random().toString(36).substring(2, 15);

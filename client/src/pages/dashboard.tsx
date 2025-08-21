@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { Redirect } from "wouter";
 import Sidebar from "@/components/layout/sidebar";
 import StatsOverview from "@/components/dashboard/stats-overview";
 import PostComposer from "@/components/dashboard/post-composer";
@@ -8,34 +9,28 @@ import ConnectedAccounts from "@/components/dashboard/connected-accounts";
 import BulkPostGenerator from "@/components/dashboard/bulk-post-generator";
 import ScheduledPosts from "@/components/dashboard/scheduled-posts";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function Dashboard() {
-  const [, setLocation] = useLocation();
-  const [user, setUser] = useState<any>(null);
+  const { user, logout, isLoading } = useAuth();
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      setLocation('/login');
-      return;
-    }
-    setUser(JSON.parse(userData));
-  }, [setLocation]);
-
-  if (!user) {
+  // Show loading state while checking auth
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
+  // Redirect to auth if not logged in
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar user={user} />
+      <Sidebar user={user} logout={logout} />
       
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
@@ -53,7 +48,7 @@ export default function Dashboard() {
                 </svg>
                 Connect Account
               </Button>
-              <BulkPostGenerator userId={user.id} />
+              <BulkPostGenerator userId={user?.id || ""} />
               <Button className="linkedin-gradient">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
@@ -66,16 +61,16 @@ export default function Dashboard() {
 
         {/* Dashboard Content */}
         <div className="p-6 space-y-8">
-          <StatsOverview userId={user.id} />
+          <StatsOverview userId={user?.id || ""} />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <PostComposer userId={user.id} />
-            <ScheduledPosts userId={user.id} />
+            <PostComposer userId={user?.id || ""} />
+            <ScheduledPosts userId={user?.id || ""} />
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <RecentPosts userId={user.id} />
-            <ConnectedAccounts userId={user.id} />
+            <RecentPosts userId={user?.id || ""} />
+            <ConnectedAccounts userId={user?.id || ""} />
           </div>
         </div>
       </main>
