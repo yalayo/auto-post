@@ -8,8 +8,10 @@ import RecentPosts from "@/components/dashboard/recent-posts";
 import ConnectedAccounts from "@/components/dashboard/connected-accounts";
 import BulkPostGenerator from "@/components/dashboard/bulk-post-generator";
 import ScheduledPosts from "@/components/dashboard/scheduled-posts";
+import PostsManager from "@/components/dashboard/posts-manager";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, BarChart3, Edit, Settings, FileText } from "lucide-react";
 
 export default function Dashboard() {
   const { user, logout, isLoading } = useAuth();
@@ -60,18 +62,55 @@ export default function Dashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <div className="p-6 space-y-8">
-          <StatsOverview userId={user?.id || ""} />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <PostComposer userId={user?.id || ""} />
-            <ScheduledPosts userId={user?.id || ""} />
+        <div className="p-6">
+          {/* Overview Stats */}
+          <div className="mb-8">
+            <StatsOverview userId={user?.id || ""} />
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <RecentPosts userId={user?.id || ""} />
-            <ConnectedAccounts userId={user?.id || ""} />
-          </div>
+
+          {/* Tabbed Interface */}
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview" className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="create" className="flex items-center space-x-2">
+                <Edit className="w-4 h-4" />
+                <span>Create</span>
+              </TabsTrigger>
+              <TabsTrigger value="manage" className="flex items-center space-x-2">
+                <FileText className="w-4 h-4" />
+                <span>Manage Posts</span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span>Accounts</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <RecentPosts userId={user?.id || ""} />
+                <ScheduledPosts userId={user?.id || ""} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="create" className="mt-6">
+              <div className="space-y-8">
+                <PostComposer userId={user?.id || ""} />
+                <BulkPostGenerator userId={user?.id || ""} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="manage" className="mt-6">
+              <PostsManager userId={user?.id || ""} />
+            </TabsContent>
+
+            <TabsContent value="settings" className="mt-6">
+              <ConnectedAccounts userId={user?.id || ""} />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
