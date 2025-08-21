@@ -362,7 +362,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedPost = await storage.updatePost(postId, updates);
       res.json(updatedPost);
     } catch (error) {
+      console.error('Update post error:', error);
       res.status(500).json({ error: 'Failed to update post' });
+    }
+  });
+
+  app.delete('/api/posts/:postId', async (req, res) => {
+    try {
+      const { postId } = req.params;
+      
+      await storage.deletePost(postId);
+      res.json({ success: true, message: 'Post deleted successfully' });
+    } catch (error) {
+      console.error('Delete post error:', error);
+      res.status(500).json({ error: 'Failed to delete post' });
     }
   });
 

@@ -68,10 +68,20 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || !selectedAccount || !startDate) {
+    if (!prompt.trim()) {
+      toast({
+        title: "Missing Information", 
+        description: "Please enter a content prompt.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Only require start date if LinkedIn account is selected
+    if (selectedAccount && !startDate) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please select a start date for scheduling.",
         variant: "destructive",
       });
       return;
@@ -121,10 +131,10 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="bulk-generator-description">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Bulk Post Generator</DialogTitle>
-          <p className="text-sm text-gray-600">Generate multiple LinkedIn posts and schedule them automatically</p>
+          <p id="bulk-generator-description" className="text-sm text-gray-600">Generate multiple LinkedIn posts and schedule them automatically</p>
         </DialogHeader>
 
         {!result ? (
@@ -204,7 +214,8 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
               </div>
               <div>
                 <Label htmlFor="interval" className="block text-sm font-medium text-gray-700 mb-2">
-                  Interval (hours) <span className="text-red-500">*</span>
+                  Interval (hours) {selectedAccount && <span className="text-red-500">*</span>}
+                  {!selectedAccount && <span className="text-gray-500 text-xs">(only needed for scheduling)</span>}
                 </Label>
                 <Input
                   id="interval"
@@ -213,7 +224,8 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
                   max="168"
                   value={intervalHours}
                   onChange={(e) => setIntervalHours(parseInt(e.target.value))}
-                  required
+                  required={!!selectedAccount}
+                  disabled={!selectedAccount}
                 />
                 <p className="text-xs text-gray-500 mt-1">Time between posts</p>
               </div>
@@ -221,14 +233,16 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
 
             <div>
               <Label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date & Time <span className="text-red-500">*</span>
+                Start Date & Time {selectedAccount && <span className="text-red-500">*</span>}
+                {!selectedAccount && <span className="text-gray-500 text-xs">(only needed for scheduling)</span>}
               </Label>
               <Input
                 id="start-date"
                 type="datetime-local"
-                value={startDate || defaultStartDate()}
+                value={startDate || (selectedAccount ? defaultStartDate() : "")}
                 onChange={(e) => setStartDate(e.target.value)}
-                required
+                required={!!selectedAccount}
+                disabled={!selectedAccount}
               />
             </div>
 

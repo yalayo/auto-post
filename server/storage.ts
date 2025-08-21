@@ -20,6 +20,7 @@ export interface IStorage {
   getPost(id: string): Promise<Post | undefined>;
   createPost(post: InsertPost): Promise<Post>;
   updatePost(id: string, updates: Partial<Post>): Promise<Post>;
+  deletePost(id: string): Promise<void>;
   getScheduledPosts(): Promise<Post[]>;
   
   // Analytics
@@ -120,6 +121,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(posts.id, id))
       .returning();
     return updated;
+  }
+
+  async deletePost(id: string): Promise<void> {
+    await db
+      .delete(posts)
+      .where(eq(posts.id, id));
   }
 
   async getScheduledPosts(): Promise<Post[]> {

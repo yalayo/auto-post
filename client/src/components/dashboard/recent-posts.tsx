@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PostActions } from "./post-actions";
 
 interface RecentPostsProps {
   userId: string;
@@ -136,9 +137,12 @@ export default function RecentPosts({ userId }: RecentPostsProps) {
                         </>
                       )}
                     </div>
-                    <Badge className={getStatusColor(post.status)}>
-                      {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
-                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getStatusColor(post.status)}>
+                        {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                      </Badge>
+                      <PostActions post={post} userId={userId} />
+                    </div>
                   </div>
                 </div>
               </div>
