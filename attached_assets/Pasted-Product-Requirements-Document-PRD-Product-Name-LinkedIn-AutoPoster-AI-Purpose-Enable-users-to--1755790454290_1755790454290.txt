@@ -1,0 +1,142 @@
+Product Requirements Document (PRD)
+
+Product Name: LinkedIn AutoPoster AI
+
+Purpose:
+Enable users to automatically generate and post content to their LinkedIn feed and company pages using AI-powered prompts from Gemini.
+
+1. Objectives
+
+Automate posting to personal LinkedIn feeds and LinkedIn pages.
+
+Use AI (Gemini) to generate high-quality posts from user prompts.
+
+Provide scheduling, editing, and preview capabilities.
+
+Ensure compliance with LinkedIn API rules and security standards.
+
+2. Key Features
+2.1 LinkedIn Integration
+
+OAuth 2.0 Authentication for LinkedIn accounts and company pages.
+
+Fetch User & Organization URNs to allow posting.
+
+Post Types Supported:
+
+Text-only posts
+
+Media attachments (images, documents)
+
+Post Scheduling: Users can schedule posts for future dates/times.
+
+History & Analytics: Track posts, engagement metrics (likes, comments, shares).
+
+2.2 AI-Powered Post Generation
+
+Integration with Gemini API for generating text posts.
+
+Prompt Input: Users enter a prompt, select style/tone, length, and optional hashtags.
+
+Preview Generated Post before posting or scheduling.
+
+Editing AI Output: Users can modify text before posting.
+
+2.3 User Experience
+
+Dashboard: View upcoming scheduled posts, previous posts, and AI suggestions.
+
+Multi-account Management: Support multiple LinkedIn accounts/pages.
+
+Notifications: Alerts for successful posts or failed posts.
+
+2.4 Admin & Security
+
+Secure Storage of LinkedIn OAuth tokens.
+
+Role-based Access: For team members posting to company pages.
+
+Rate Limit Management: To prevent exceeding LinkedIn API limits.
+
+3. Technical Requirements
+3.1 Backend
+
+Languages: Python, Node.js, or similar
+
+Framework: FastAPI / Flask / Express
+
+LinkedIn API: UGC Posts API, Organization Pages API
+
+Gemini API: For AI-generated post content
+
+Database: PostgreSQL or MongoDB for user, post, and scheduling data
+
+Scheduler: Celery / APScheduler / Cron jobs for post scheduling
+
+3.2 Frontend
+
+Web App: React or Vue.js
+
+Components:
+
+Dashboard with post feed & analytics
+
+Post composer with Gemini integration
+
+Account management & settings
+
+3.3 Security
+
+OAuth 2.0 token storage (encrypted)
+
+HTTPS for all network communication
+
+Rate limit handling for LinkedIn API calls
+
+4. User Stories
+
+As a user, I want to log in with my LinkedIn account, so I can post to my feed.
+
+As a user, I want to connect my company pages, so I can post on behalf of my organization.
+
+As a user, I want to input a prompt and generate an AI-powered post, so I save time creating content.
+
+As a user, I want to schedule posts, so I can maintain a consistent posting schedule.
+
+As a user, I want to view analytics for posts, so I can track engagement.
+
+5. MVP Scope
+
+OAuth login for LinkedIn personal and company accounts
+
+Manual posting to feed and pages
+
+Simple AI-generated text post using Gemini API
+
+Preview before posting
+
+Basic scheduling (e.g., pick date/time)
+
+Dashboard with post history
+
+6. Stretch Goals
+
+Media uploads for posts (images, documents, videos)
+
+Post templates and repeated campaigns
+
+Advanced analytics (demographics, best posting times)
+
+Multi-user/team collaboration for company pages
+
+Integration with other AI content services besides Gemini
+
+7. KPIs
+
+Number of posts successfully scheduled and published
+
+User engagement with AI-generated posts
+
+Time saved on content creation
+
+Number of active users/accounts connected
