@@ -14,6 +14,18 @@ const generatePostSchema = z.object({
   hashtags: z.string().optional(),
 });
 
+const bulkGenerateSchema = z.object({
+  prompt: z.string().min(1),
+  tone: z.enum(['professional', 'casual', 'inspirational', 'educational']),
+  length: z.enum(['short', 'medium', 'long']),
+  hashtags: z.string().optional(),
+  count: z.number().min(1).max(20), // Limit to 20 posts max
+  userId: z.string(),
+  linkedinAccountId: z.string(),
+  startDate: z.string(),
+  intervalHours: z.number().min(1).max(168), // Between 1 hour and 1 week
+});
+
 const createPostSchema = insertPostSchema.extend({
   scheduledAt: z.string().optional().transform(str => str ? new Date(str) : undefined),
 });
@@ -118,6 +130,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk post generation and scheduling
+  app.post('/api/posts/bulk-generate', async (req, res) => {
+    try {
+      const validatedData = bulkGenerateSchema.parse(req.body);
+      const { prompt, tone, length, hashtags, count, userId, linkedinAccountId, startDate, intervalHours } = validatedData;
+
+      const generatedPosts = [];
+      const errors = [];
+
+      // Generate multiple unique posts
+      for (let i = 0; i < count; i++) {
+        try {
+          // Add variation to the prompt to get different posts
+          const variationPrompts = [
+            `${prompt}`,
+            `${prompt} - share a different perspective`,
+            `${prompt} - focus on practical tips`,
+            `${prompt} - include a personal story`,
+            `${prompt} - highlight key benefits`,
+            `${prompt} - discuss common challenges`,
+            `${prompt} - provide actionable insights`,
+            `${prompt} - share industry trends`,
+          ];
+          
+          const promptVariation = variationPrompts[i % variationPrompts.length];
+          
+          const generatedPost = await generateLinkedInPost({
+            prompt: promptVariation,
+            tone,
+            length,
+            hashtags,
+          });
+
+          // Calculate scheduled time
+          const scheduledAt = new Date(startDate);
+          scheduledAt.setHours(scheduledAt.getHours() + (i * intervalHours));
+
+          // Save to database
+          const savedPost = await storage.createPost({
+            userId,
+            linkedinAccountId,
+            content: generatedPost.content,
+            prompt: promptVariation,
+            tone,
+            hashtags: hashtags || generatedPost.suggestedHashtags?.join(' '),
+            status: 'scheduled',
+            scheduledAt,
+          });
+
+          generatedPosts.push(savedPost);
+        } catch (error) {
+          console.error(`Error generating post ${i + 1}:`, error);
+          errors.push(`Post ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      res.json({
+        success: true,
+        generated: generatedPosts.length,
+        total: count,
+        posts: generatedPosts,
+        errors: errors.length > 0 ? errors : undefined,
+      });
+    } catch (error) {
+      console.error('Bulk generation error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to generate posts' });
+    }
+  });
+
   // Posts routes
   app.get('/api/user/:userId/posts', async (req, res) => {
     try {
@@ -217,12 +301,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const scheduledPosts = await storage.getScheduledPosts();
       const now = new Date();
+      let processed = 0;
+      let failed = 0;
       
       for (const post of scheduledPosts) {
         if (post.scheduledAt && post.scheduledAt <= now) {
           try {
             const linkedinAccount = await storage.getLinkedinAccount(post.linkedinAccountId);
             if (linkedinAccount) {
+              // Check if token needs refresh
+              if (linkedinAccount.tokenExpiresAt && linkedinAccount.tokenExpiresAt < now) {
+                if (linkedinAccount.refreshToken) {
+                  const tokenData = await linkedInService.refreshAccessToken(linkedinAccount.refreshToken);
+                  await storage.updateLinkedinAccount(post.linkedinAccountId, {
+                    accessToken: tokenData.accessToken,
+                    tokenExpiresAt: new Date(Date.now() + tokenData.expiresIn * 1000),
+                  });
+                  linkedinAccount.accessToken = tokenData.accessToken;
+                } else {
+                  throw new Error('LinkedIn token expired and no refresh token available');
+                }
+              }
+
               const personUrn = `urn:li:person:${linkedinAccount.linkedinId}`;
               const linkedinPostId = await linkedInService.publishPost(
                 linkedinAccount.accessToken,
@@ -235,6 +335,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 linkedinPostId,
                 publishedAt: new Date(),
               });
+              processed++;
+            } else {
+              throw new Error('LinkedIn account not found');
             }
           } catch (error) {
             console.error(`Failed to publish scheduled post ${post.id}:`, error);
@@ -242,12 +345,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
               status: 'failed',
               errorMessage: error instanceof Error ? error.message : 'Unknown error',
             });
+            failed++;
           }
         }
       }
 
-      res.json({ message: 'Scheduled posts processed' });
+      res.json({ 
+        message: 'Scheduled posts processed',
+        processed,
+        failed,
+        total: scheduledPosts.length
+      });
     } catch (error) {
+      console.error('Scheduler error:', error);
       res.status(500).json({ error: 'Failed to process scheduled posts' });
     }
   });

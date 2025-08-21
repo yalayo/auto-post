@@ -5,6 +5,8 @@ import StatsOverview from "@/components/dashboard/stats-overview";
 import PostComposer from "@/components/dashboard/post-composer";
 import RecentPosts from "@/components/dashboard/recent-posts";
 import ConnectedAccounts from "@/components/dashboard/connected-accounts";
+import BulkPostGenerator from "@/components/dashboard/bulk-post-generator";
+import ScheduledPosts from "@/components/dashboard/scheduled-posts";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -51,6 +53,7 @@ export default function Dashboard() {
                 </svg>
                 Connect Account
               </Button>
+              <BulkPostGenerator userId={user.id} />
               <Button className="linkedin-gradient">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
@@ -67,10 +70,13 @@ export default function Dashboard() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <PostComposer userId={user.id} />
-            <RecentPosts userId={user.id} />
+            <ScheduledPosts userId={user.id} />
           </div>
           
-          <ConnectedAccounts userId={user.id} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <RecentPosts userId={user.id} />
+            <ConnectedAccounts userId={user.id} />
+          </div>
         </div>
       </main>
     </div>

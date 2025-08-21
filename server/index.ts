@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { postScheduler } from "./services/scheduler";
 
 const app = express();
 app.use(express.json());
@@ -67,5 +68,21 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Start the post scheduler
+    postScheduler.start();
+  });
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    log('Shutting down gracefully...');
+    postScheduler.stop();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', () => {
+    log('Shutting down gracefully...');
+    postScheduler.stop();
+    process.exit(0);
   });
 })();

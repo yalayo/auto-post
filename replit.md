@@ -7,10 +7,29 @@ LinkedIn AutoPoster AI is a full-stack web application that enables users to aut
 The application is fully implemented with:
 - Complete database schema with PostgreSQL and Drizzle ORM
 - AI-powered post generation using Google Gemini API
+- **NEW: Bulk post generation with automatic scheduling**
+- **NEW: Background scheduler for automated posting every Y hours**
 - LinkedIn OAuth integration (backend ready)
 - Full-featured dashboard with analytics, post composer, and account management
+- Scheduled posts management and monitoring
 - Responsive UI with shadcn/ui components and Tailwind CSS
 - TypeScript throughout frontend and backend
+
+## Recent Changes (January 2025)
+
+### Bulk Post Generation Feature
+- Added `/api/posts/bulk-generate` endpoint for creating X posts from a single prompt
+- Implemented prompt variations to ensure unique content for each post
+- Added automatic scheduling with configurable intervals (Y hours between posts)
+- Created BulkPostGenerator component with full UI for configuration
+- Added ScheduledPosts component to monitor upcoming posts
+
+### Automated Posting System
+- Implemented PostScheduler service that runs every 5 minutes
+- Automatic processing of scheduled posts when their time arrives
+- Token refresh handling for expired LinkedIn authentication
+- Error handling and status tracking for failed posts
+- Graceful shutdown handling
 
 # User Preferences
 
