@@ -31,7 +31,7 @@ export const linkedinAccounts = pgTable("linkedin_accounts", {
 export const posts = pgTable("posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  linkedinAccountId: varchar("linkedin_account_id").references(() => linkedinAccounts.id, { onDelete: "cascade" }).notNull(),
+  linkedinAccountId: varchar("linkedin_account_id").references(() => linkedinAccounts.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   prompt: text("prompt"), // Original AI prompt if generated
   tone: text("tone"), // professional, casual, etc.

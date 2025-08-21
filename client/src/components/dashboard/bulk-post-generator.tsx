@@ -234,14 +234,15 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
 
             <div>
               <Label className="block text-sm font-medium text-gray-700 mb-2">
-                LinkedIn Account <span className="text-red-500">*</span>
+                LinkedIn Account
               </Label>
               {linkedinAccounts.length > 0 ? (
                 <Select value={selectedAccount} onValueChange={setSelectedAccount}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select an account" />
+                    <SelectValue placeholder="Select an account (optional)" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">No account (create as drafts)</SelectItem>
                     {linkedinAccounts.map((account: any) => (
                       <SelectItem key={account.id} value={account.id}>
                         {account.name} ({account.type})
@@ -250,8 +251,11 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded">
-                  No LinkedIn accounts connected. Please connect an account first.
+                <div className="text-sm text-blue-600 p-3 bg-blue-50 rounded border border-blue-200">
+                  <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Posts will be created as drafts. Connect a LinkedIn account later to schedule them.
                 </div>
               )}
             </div>
@@ -268,7 +272,7 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
               <Button
                 type="submit"
                 className="flex-1 linkedin-gradient"
-                disabled={bulkGenerateMutation.isPending || linkedinAccounts.length === 0}
+                disabled={bulkGenerateMutation.isPending}
               >
                 {bulkGenerateMutation.isPending ? "Generating..." : `Generate ${count} Posts`}
               </Button>
@@ -298,7 +302,7 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
             )}
 
             <div className="space-y-3">
-              <h4 className="font-medium">Scheduling Summary:</h4>
+              <h4 className="font-medium">Generation Summary:</h4>
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -306,21 +310,38 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
                     <span className="ml-2 font-medium">{result.generated}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Interval:</span>
-                    <span className="ml-2 font-medium">{intervalHours} hours</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">First Post:</span>
+                    <span className="text-gray-600">Status:</span>
                     <span className="ml-2 font-medium">
-                      {new Date(startDate).toLocaleDateString()} at {new Date(startDate).toLocaleTimeString()}
+                      {selectedAccount ? 'Scheduled' : 'Drafts'}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Last Post:</span>
-                    <span className="ml-2 font-medium">
-                      {new Date(new Date(startDate).getTime() + (result.generated - 1) * intervalHours * 60 * 60 * 1000).toLocaleDateString()}
-                    </span>
-                  </div>
+                  {selectedAccount && (
+                    <>
+                      <div>
+                        <span className="text-gray-600">Interval:</span>
+                        <span className="ml-2 font-medium">{intervalHours} hours</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">First Post:</span>
+                        <span className="ml-2 font-medium">
+                          {new Date(startDate).toLocaleDateString()} at {new Date(startDate).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Last Post:</span>
+                        <span className="ml-2 font-medium">
+                          {new Date(new Date(startDate).getTime() + (result.generated - 1) * intervalHours * 60 * 60 * 1000).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  {!selectedAccount && (
+                    <div className="col-span-2">
+                      <span className="text-blue-600 text-sm">
+                        Posts created as drafts. Connect a LinkedIn account and assign posts to schedule them.
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

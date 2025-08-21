@@ -31,7 +31,7 @@ const bulkGenerateSchema = z.object({
   hashtags: z.string().optional(),
   count: z.number().min(1).max(20), // Limit to 20 posts max
   userId: z.string(),
-  linkedinAccountId: z.string(),
+  linkedinAccountId: z.string().optional().nullable(), // Now optional - can create drafts
   startDate: z.string(),
   intervalHours: z.number().min(1).max(168), // Between 1 hour and 1 week
 });
@@ -227,19 +227,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             hashtags,
           });
 
-          // Calculate scheduled time
-          const scheduledAt = new Date(startDate);
-          scheduledAt.setHours(scheduledAt.getHours() + (i * intervalHours));
+          // Calculate scheduled time for posts with LinkedIn accounts
+          let scheduledAt = null;
+          let status = 'draft';
+          
+          if (linkedinAccountId) {
+            scheduledAt = new Date(startDate);
+            scheduledAt.setHours(scheduledAt.getHours() + (i * intervalHours));
+            status = 'scheduled';
+          }
 
           // Save to database
           const savedPost = await storage.createPost({
             userId,
-            linkedinAccountId,
+            linkedinAccountId: linkedinAccountId || null,
             content: generatedPost.content,
             prompt: promptVariation,
             tone,
             hashtags: hashtags || generatedPost.suggestedHashtags?.join(' '),
-            status: 'scheduled',
+            status,
             scheduledAt,
           });
 
@@ -369,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let failed = 0;
       
       for (const post of scheduledPosts) {
-        if (post.scheduledAt && post.scheduledAt <= now) {
+        if (post.scheduledAt && post.scheduledAt <= now && post.linkedinAccountId) {
           try {
             const linkedinAccount = await storage.getLinkedinAccount(post.linkedinAccountId);
             if (linkedinAccount) {
