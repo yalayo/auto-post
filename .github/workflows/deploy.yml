@@ -55,13 +55,3 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         continue-on-error: true
-
-      - name: Set secrets
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: secret put GEMINI_API_KEY --env production
-        env:
-          WRANGLER_SECRET: ${{ secrets.GEMINI_API_KEY }}
-        continue-on-error: true
