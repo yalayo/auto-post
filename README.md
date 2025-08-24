@@ -12,14 +12,14 @@ This project has been migrated to Cloudflare Workers with D1 database for scalab
 ### 2. D1 Database Setup
 ```bash
 # Create D1 database
-wrangler d1 create linkedin-autoposter-db
+wrangler d1 create autoposter-db
 
 # Update wrangler.toml with the database ID returned from above command
 
 # Run migrations
 npm run db:generate
-wrangler d1 migrations apply linkedin-autoposter-db --local
-wrangler d1 migrations apply linkedin-autoposter-db --remote
+wrangler d1 migrations apply autoposter-db --local
+wrangler d1 migrations apply autoposter-db --remote
 ```
 
 ### 3. Set Secrets
