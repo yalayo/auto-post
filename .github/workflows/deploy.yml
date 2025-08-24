@@ -43,7 +43,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Generate D1 migrations
-        run: npm run db:generate
+        run: npx drizzle-kit generate
         continue-on-error: true
 
       - name: Run database migrations
