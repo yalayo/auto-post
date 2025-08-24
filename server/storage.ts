@@ -1,6 +1,7 @@
 import { users, linkedinAccounts, posts, type User, type InsertUser, type LinkedinAccount, type InsertLinkedinAccount, type Post, type InsertPost } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, count } from "drizzle-orm";
+// import { db } from "./db"; // Disabled for Workers migration
+import { eq, desc, and, count, lte } from "drizzle-orm";
+import type { Database } from "../src/db";
 
 export interface IStorage {
   // User methods
@@ -33,23 +34,29 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private db: Database;
+
+  constructor(db: Database) {
+    this.db = db;
+  }
+
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await this.db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await this.db.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, username));
+    const [user] = await this.db.select().from(users).where(eq(users.email, username));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
+    const [user] = await this.db
       .insert(users)
       .values(insertUser)
       .returning();
@@ -57,7 +64,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLinkedinAccounts(userId: string): Promise<LinkedinAccount[]> {
-    return await db
+    return await this.db
       .select()
       .from(linkedinAccounts)
       .where(eq(linkedinAccounts.userId, userId))
@@ -65,7 +72,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLinkedinAccount(id: string): Promise<LinkedinAccount | undefined> {
-    const [account] = await db
+    const [account] = await this.db
       .select()
       .from(linkedinAccounts)
       .where(eq(linkedinAccounts.id, id));
@@ -73,7 +80,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLinkedinAccount(account: InsertLinkedinAccount): Promise<LinkedinAccount> {
-    const [newAccount] = await db
+    const [newAccount] = await this.db
       .insert(linkedinAccounts)
       .values(account)
       .returning();
@@ -81,7 +88,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateLinkedinAccount(id: string, updates: Partial<LinkedinAccount>): Promise<LinkedinAccount> {
-    const [updated] = await db
+    const [updated] = await this.db
       .update(linkedinAccounts)
       .set(updates)
       .where(eq(linkedinAccounts.id, id))
@@ -90,7 +97,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPosts(userId: string, limit = 50): Promise<Post[]> {
-    return await db
+    return await this.db
       .select()
       .from(posts)
       .where(eq(posts.userId, userId))
@@ -99,7 +106,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPost(id: string): Promise<Post | undefined> {
-    const [post] = await db
+    const [post] = await this.db
       .select()
       .from(posts)
       .where(eq(posts.id, id));
@@ -107,7 +114,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createPost(post: InsertPost): Promise<Post> {
-    const [newPost] = await db
+    const [newPost] = await this.db
       .insert(posts)
       .values(post)
       .returning();
@@ -115,7 +122,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updatePost(id: string, updates: Partial<Post>): Promise<Post> {
-    const [updated] = await db
+    const [updated] = await this.db
       .update(posts)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(posts.id, id))
@@ -124,13 +131,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePost(id: string): Promise<void> {
-    await db
+    await this.db
       .delete(posts)
       .where(eq(posts.id, id));
   }
 
   async getScheduledPosts(): Promise<Post[]> {
-    return await db
+    return await this.db
       .select()
       .from(posts)
       .where(eq(posts.status, 'scheduled'))
@@ -143,23 +150,23 @@ export class DatabaseStorage implements IStorage {
     publishedPosts: number;
     avgEngagement: number;
   }> {
-    const [totalResult] = await db
+    const [totalResult] = await this.db
       .select({ count: count() })
       .from(posts)
       .where(eq(posts.userId, userId));
 
-    const [scheduledResult] = await db
+    const [scheduledResult] = await this.db
       .select({ count: count() })
       .from(posts)
       .where(and(eq(posts.userId, userId), eq(posts.status, 'scheduled')));
 
-    const [publishedResult] = await db
+    const [publishedResult] = await this.db
       .select({ count: count() })
       .from(posts)
       .where(and(eq(posts.userId, userId), eq(posts.status, 'published')));
 
     // Calculate average engagement from metrics
-    const publishedPosts = await db
+    const publishedPosts = await this.db
       .select()
       .from(posts)
       .where(and(eq(posts.userId, userId), eq(posts.status, 'published')));
@@ -189,4 +196,7 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// For Express server (legacy) - create storage with database connection
+import { db } from "./db";
+
+export const storage = new DatabaseStorage(db);
