@@ -1,49 +1,49 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   password: text("password").notNull(),
   avatar: text("avatar"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
-export const linkedinAccounts = pgTable("linkedin_accounts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+export const linkedinAccounts = sqliteTable("linkedin_accounts", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   linkedinId: text("linkedin_id").notNull().unique(),
   name: text("name").notNull(),
   type: text("type").notNull(), // 'personal' or 'company'
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token"),
-  tokenExpiresAt: timestamp("token_expires_at"),
+  tokenExpiresAt: integer("token_expires_at", { mode: 'timestamp' }),
   followers: integer("followers").default(0),
   profilePicture: text("profile_picture"),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  isActive: integer("is_active", { mode: 'boolean' }).default(true).notNull(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
-export const posts = pgTable("posts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  linkedinAccountId: varchar("linkedin_account_id").references(() => linkedinAccounts.id, { onDelete: "cascade" }),
+export const posts = sqliteTable("posts", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  linkedinAccountId: text("linkedin_account_id").references(() => linkedinAccounts.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   prompt: text("prompt"), // Original AI prompt if generated
   tone: text("tone"), // professional, casual, etc.
   hashtags: text("hashtags"),
   status: text("status").notNull(), // 'draft', 'scheduled', 'published', 'failed'
   linkedinPostId: text("linkedin_post_id"), // LinkedIn's ID after posting
-  scheduledAt: timestamp("scheduled_at"),
-  publishedAt: timestamp("published_at"),
-  metrics: jsonb("metrics"), // likes, comments, shares
+  scheduledAt: integer("scheduled_at", { mode: 'timestamp' }),
+  publishedAt: integer("published_at", { mode: 'timestamp' }),
+  metrics: text("metrics", { mode: 'json' }), // likes, comments, shares as JSON
   errorMessage: text("error_message"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer("updated_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

@@ -1,0 +1,22 @@
+name = "linkedin-autoposter-ai"
+main = "src/index.ts"
+compatibility_date = "2024-11-25"
+
+[build]
+command = "npm run build"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "linkedin-autoposter-db"
+database_id = "replace-with-your-database-id"
+
+[vars]
+# Environment variables (non-secret)
+NODE_ENV = "production"
+
+# Secret environment variables (will be set via wrangler secret put)
+# GEMINI_API_KEY = "your-gemini-api-key"
+# LINKEDIN_CLIENT_ID = "your-linkedin-client-id" 
+# LINKEDIN_CLIENT_SECRET = "your-linkedin-client-secret"
+# CLOUDFLARE_ACCOUNT_ID = "your-cloudflare-account-id"
+# CLOUDFLARE_D1_TOKEN = "your-cloudflare-d1-token"
