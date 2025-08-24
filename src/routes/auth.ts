@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { createStorage } from '../storage';
 import { createD1Database } from '../db';
 import { hashPassword, comparePasswords, sanitizeUser } from '../../server/services/auth';
-import { insertUserSchema } from '@shared/schema';
+import { insertUserSchema } from '../../shared/schema';
 
-import type { Env } from '../index';
+import type { Env } from '../types';
 
 const app = new Hono<{ Bindings: Env }>();
 

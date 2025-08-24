@@ -1,4 +1,4 @@
-import { users, linkedinAccounts, posts, type User, type InsertUser, type LinkedinAccount, type InsertLinkedinAccount, type Post, type InsertPost } from "@shared/schema";
+import { users, linkedinAccounts, posts, type User, type InsertUser, type LinkedinAccount, type InsertLinkedinAccount, type Post, type InsertPost } from "../shared/schema";
 import { eq, desc, and, count } from "drizzle-orm";
 import type { Database } from "./db";
 

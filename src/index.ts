@@ -7,12 +7,7 @@ import { postsRoutes } from './routes/posts';
 import { usersRoutes } from './routes/users';
 import { linkedinRoutes } from './routes/linkedin';
 
-export interface Env {
-  DB: D1Database;
-  GEMINI_API_KEY: string;
-  LINKEDIN_CLIENT_ID: string;
-  LINKEDIN_CLIENT_SECRET: string;
-}
+import type { Env } from './types';
 
 const app = new Hono<{ Bindings: Env }>();
 

@@ -5,12 +5,9 @@ import { createStorage } from '../storage';
 import { createD1Database } from '../db';
 import { LinkedInService, linkedInService } from '../../server/services/linkedin';
 
-type Bindings = {
-  DB: D1Database;
-  GEMINI_API_KEY: string;
-};
+import type { Env } from '../types';
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 const linkedinCallbackSchema = z.object({
   code: z.string(),

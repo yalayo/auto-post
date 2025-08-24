@@ -5,14 +5,11 @@ import { createStorage } from '../storage';
 import { createD1Database } from '../db';
 import { generateLinkedInPost } from '../../server/services/gemini';
 import { linkedInService } from '../../server/services/linkedin';
-import { insertPostSchema } from '@shared/schema';
+import { insertPostSchema } from '../../shared/schema';
 
-type Bindings = {
-  DB: D1Database;
-  GEMINI_API_KEY: string;
-};
+import type { Env } from '../types';
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 const generatePostSchema = z.object({
   prompt: z.string().min(1),

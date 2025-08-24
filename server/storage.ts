@@ -1,7 +1,6 @@
 import { users, linkedinAccounts, posts, type User, type InsertUser, type LinkedinAccount, type InsertLinkedinAccount, type Post, type InsertPost } from "@shared/schema";
-// import { db } from "./db"; // Disabled for Workers migration
+import { db } from "./db";
 import { eq, desc, and, count, lte } from "drizzle-orm";
-import type { Database } from "../src/db";
 
 export interface IStorage {
   // User methods
@@ -34,9 +33,9 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  private db: Database;
+  private db: any; // Use any to avoid type conflicts between Neon and D1
 
-  constructor(db: Database) {
+  constructor(db: any) {
     this.db = db;
   }
 
@@ -174,7 +173,7 @@ export class DatabaseStorage implements IStorage {
     let totalEngagement = 0;
     let engagementCount = 0;
 
-    publishedPosts.forEach(post => {
+    publishedPosts.forEach((post: Post) => {
       if (post.metrics && typeof post.metrics === 'object') {
         const metrics = post.metrics as any;
         const likes = metrics.likes || 0;
@@ -197,6 +196,4 @@ export class DatabaseStorage implements IStorage {
 }
 
 // For Express server (legacy) - create storage with database connection
-import { db } from "./db";
-
 export const storage = new DatabaseStorage(db);

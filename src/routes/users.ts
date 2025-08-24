@@ -2,12 +2,9 @@ import { Hono } from 'hono';
 import { createStorage } from '../storage';
 import { createD1Database } from '../db';
 
-type Bindings = {
-  DB: D1Database;
-  GEMINI_API_KEY: string;
-};
+import type { Env } from '../types';
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 // Get user by ID
 app.get('/:userId', async (c) => {
