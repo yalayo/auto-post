@@ -6,6 +6,9 @@ compatibility_flags = ["nodejs_compat"]
 [build]
 command = "npm run build"
 
+# For static assets
+assets = { directory = "./public" }
+
 [[d1_databases]]
 binding = "DB"
 database_name = "autoposter-db"

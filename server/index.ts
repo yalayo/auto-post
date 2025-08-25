@@ -1,88 +1,108 @@
-import express, { type Request, Response, NextFunction } from "express";
+// Shared imports
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { postScheduler } from "./services/scheduler";
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// --- Development: Node.js with Express ---
+async function runNodeServer() {
+  const express = await import("express");
+  const app = express.default();
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  // Logging middleware
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path = req.path;
+    let capturedJsonResponse: Record<string, any> | undefined;
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+    const originalResJson = res.json;
+    res.json = function (bodyJson, ...args) {
+      capturedJsonResponse = bodyJson;
+      return originalResJson.apply(res, [bodyJson, ...args]);
+    };
+
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      if (path.startsWith("/api")) {
+        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        if (capturedJsonResponse) {
+          logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        }
+        if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
+        log(logLine);
       }
+    });
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
+    next();
   });
 
-  next();
-});
-
-(async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, _req: any, res: any, _next: any) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-    
-    // Start the post scheduler
-    postScheduler.start();
-  });
+  const port = parseInt(process.env.PORT || "5000", 10);
+  server.listen(
+    { port, host: "0.0.0.0", reusePort: true },
+    () => {
+      log(`serving on port ${port}`);
+      postScheduler.start();
+    }
+  );
 
-  // Graceful shutdown
-  process.on('SIGINT', () => {
-    log('Shutting down gracefully...');
+  process.on("SIGINT", () => {
+    log("Shutting down gracefully...");
     postScheduler.stop();
     process.exit(0);
   });
 
-  process.on('SIGTERM', () => {
-    log('Shutting down gracefully...');
+  process.on("SIGTERM", () => {
+    log("Shutting down gracefully...");
     postScheduler.stop();
     process.exit(0);
   });
-})();
+}
+
+// --- Production: Cloudflare Worker ---
+const worker = {
+  async fetch(request: Request, env: any) {
+    const url = new URL(request.url);
+
+    // Proxy API calls
+    if (url.pathname.startsWith("/api/")) {
+      const backendUrl = new URL(request.url);
+      backendUrl.hostname = "my-backend.example.com"; // your backend
+      backendUrl.protocol = "https:";
+      return fetch(new Request(backendUrl, request));
+    }
+
+    // Static assets
+    try {
+      return await env.ASSETS.fetch(request);
+    } catch {
+      // SPA fallback
+      return env.ASSETS.fetch(new Request(`${url.origin}/index.html`, request));
+    }
+  },
+};
+
+// --- Entrypoint switch ---
+if (typeof process !== "undefined" && process.release?.name === "node") {
+  // Development with Node.js
+  runNodeServer();
+} else {
+  // Production on Cloudflare
+  export default worker;
+}
