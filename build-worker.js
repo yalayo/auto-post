@@ -31,6 +31,11 @@ await build({
   // Exclude problematic dependencies
   conditions: ['worker', 'browser'],
   mainFields: ['worker', 'browser', 'main', 'module'],
+  // Exclude Node.js built-in modules
+  external: [],
+  banner: {
+    js: '// Cloudflare Workers build'
+  },
 }).catch(() => process.exit(1));
 
 console.log('✓ Worker build complete');
