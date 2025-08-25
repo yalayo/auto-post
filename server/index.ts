@@ -78,7 +78,7 @@ async function runNodeServer() {
 
 // --- Production: Cloudflare Worker ---
 const worker = {
-  async fetch(request: Request, env: any) {
+    async fetch(request: Request, env: any, ctx: ExecutionContext) {
     const url = new URL(request.url);
     console.log("from the worker: " + url)
     // Proxy API calls
