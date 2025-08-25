@@ -1,3 +1,4 @@
+import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
 // Shared imports
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -88,13 +89,21 @@ const worker = {
       return fetch(new Request(backendUrl, request));
     }
 
-    // Static assets
+    // Static assets & SPA fallback
     try {
-      console.log("Serving static asset: " + url.pathname)
-      return await env.ASSETS.fetch(request);
-    } catch {
-      // SPA fallback
-      return env.ASSETS.fetch(new Request(`${url.origin}/index.html`, request));
+      return await getAssetFromKV(
+        { request, waitUntil: ctx.waitUntil.bind(ctx) },
+        { ASSET_NAMESPACE: env.__STATIC_CONTENT }
+      );
+    } catch (e) {
+      // fallback to index.html for SPAs
+      return getAssetFromKV(
+        {
+          request: new Request(`${url.origin}/index.html`, request),
+          waitUntil: ctx.waitUntil.bind(ctx),
+        },
+        { ASSET_NAMESPACE: env.__STATIC_CONTENT }
+      );
     }
   },
 };
