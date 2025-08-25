@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 command = "npm run build"
 
 # For static assets
-assets = { directory = "./public" }
+assets = { directory = "./dist/public" }
 
 [[d1_databases]]
 binding = "DB"
