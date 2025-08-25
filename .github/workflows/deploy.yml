@@ -27,7 +27,7 @@ jobs:
         run: npm run check
 
       - name: Build application
-        run: npm run build
+        run: node build-worker.js
 
       - name: Inject DATABASE_ID into wrangler.toml
         run: |
