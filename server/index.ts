@@ -90,7 +90,7 @@ const worker = {
 
     // Static assets
     try {
-      console.log("Serving static asset: " + url.pathname")
+      console.log("Serving static asset: " + url.pathname)
       return await env.ASSETS.fetch(request);
     } catch {
       // SPA fallback
