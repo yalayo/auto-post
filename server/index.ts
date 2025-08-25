@@ -98,11 +98,10 @@ const worker = {
   },
 };
 
-// --- Entrypoint switch ---
+// --- Top-level export (always here) ---
+export default worker;
+
+// --- Runtime detection for dev ---
 if (typeof process !== "undefined" && process.release?.name === "node") {
-  // Development with Node.js
   runNodeServer();
-} else {
-  // Production on Cloudflare
-  export default worker;
 }
