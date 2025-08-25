@@ -79,7 +79,7 @@ async function runNodeServer() {
 const worker = {
   async fetch(request: Request, env: any) {
     const url = new URL(request.url);
-
+    console.log("from the worker: " + url)
     // Proxy API calls
     if (url.pathname.startsWith("/api/")) {
       const backendUrl = new URL(request.url);
@@ -90,6 +90,7 @@ const worker = {
 
     // Static assets
     try {
+      console.log("Serving static asset: " + url.pathname")
       return await env.ASSETS.fetch(request);
     } catch {
       // SPA fallback
