@@ -51,11 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginData) => {
+    mutationFn: async (credentials: LoginData): Promise<{ user: User }> => {
       const res = await apiRequest("POST", "/api/auth/login", credentials);
-      return await res.json();
+      return await res.json() as { user: User };
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { user: User }) => {
       const user = data.user;
       setUser(user);
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -75,11 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: RegisterData) => {
+    mutationFn: async (credentials: RegisterData): Promise<{ user: User }> => {
       const res = await apiRequest("POST", "/api/auth/register", credentials);
-      return await res.json();
+      return await res.json() as { user: User };
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { user: User }) => {
       const user = data.user;
       setUser(user);
       localStorage.setItem('auth_user', JSON.stringify(user));

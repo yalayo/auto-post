@@ -36,9 +36,9 @@ export default function PostComposer({ userId }: PostComposerProps) {
   });
 
   const generateMutation = useMutation({
-    mutationFn: async (data: { prompt: string; tone: string; length: string; hashtags?: string }) => {
+    mutationFn: async (data: { prompt: string; tone: string; length: string; hashtags?: string }): Promise<GeneratedPost> => {
       const response = await apiRequest('POST', '/api/posts/generate', data);
-      return response.json();
+      return await response.json() as GeneratedPost;
     },
     onSuccess: (data: GeneratedPost) => {
       setGeneratedPost(data);

@@ -43,9 +43,9 @@ export default function BulkPostGenerator({ userId }: BulkPostGeneratorProps) {
   });
 
   const bulkGenerateMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: any): Promise<BulkGenerationResult> => {
       const response = await apiRequest('POST', '/api/posts/bulk-generate', data);
-      return response.json();
+      return await response.json() as BulkGenerationResult;
     },
     onSuccess: (data: BulkGenerationResult) => {
       setResult(data);

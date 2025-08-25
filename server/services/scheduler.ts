@@ -39,7 +39,7 @@ export class PostScheduler {
       });
 
       if (response.ok) {
-        const result = await response.json();
+        const result = await response.json() as any;
         if (result.processed > 0 || result.failed > 0) {
           console.log(`Scheduler: Processed ${result.processed} posts, ${result.failed} failed`);
         }

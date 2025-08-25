@@ -21,7 +21,7 @@ export default function ConnectedAccounts({ userId }: ConnectedAccountsProps) {
       const response = await apiRequest('POST', '/api/auth/linkedin');
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       window.location.href = data.authUrl;
     },
     onError: () => {

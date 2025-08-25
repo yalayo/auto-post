@@ -1,0 +1,49 @@
+Error: client/src/components/dashboard/bulk-post-generator.tsx(46,5): error TS2322: Type '(data: any) => Promise<unknown>' is not assignable to type 'MutationFunction<BulkGenerationResult, any>'.
+  Type 'Promise<unknown>' is not assignable to type 'Promise<BulkGenerationResult>'.
+    Type 'unknown' is not assignable to type 'BulkGenerationResult'.
+Error: client/src/components/dashboard/connected-accounts.tsx(25,30): error TS18046: 'data' is of type 'unknown'.
+Error: client/src/components/dashboard/post-composer.tsx(39,5): error TS2322: Type '(data: { prompt: string; tone: string; length: string; hashtags?: string; }) => Promise<unknown>' is not assignable to type 'MutationFunction<GeneratedPost, { prompt: string; tone: string; length: string; hashtags?: string | undefined; }>'.
+  Type 'Promise<unknown>' is not assignable to type 'Promise<GeneratedPost>'.
+    Type 'unknown' is not assignable to type 'GeneratedPost'.
+Error: client/src/hooks/use-auth.tsx(59,20): error TS18046: 'data' is of type 'unknown'.
+Error: client/src/hooks/use-auth.tsx(83,20): error TS18046: 'data' is of type 'unknown'.
+Error: client/src/hooks/use-auth.tsx(116,9): error TS2322: Type 'UseMutationResult<unknown, any, LoginData, unknown>' is not assignable to type 'UseMutationResult<{ user: User; }, Error, LoginData>'.
+  Type 'Override<MutationObserverIdleResult<unknown, any, LoginData, unknown>, { mutate: UseMutateFunction<unknown, any, LoginData, unknown>; }> & { ...; }' is not assignable to type 'UseMutationResult<{ user: User; }, Error, LoginData>'.
+    Type 'Override<MutationObserverIdleResult<unknown, any, LoginData, unknown>, { mutate: UseMutateFunction<unknown, any, LoginData, unknown>; }> & { ...; }' is not assignable to type 'Override<MutationObserverIdleResult<{ user: User; }, Error, LoginData, unknown>, { mutate: UseMutateFunction<{ user: User; }, Error, LoginData, unknown>; }> & { ...; }'.
+      Type 'Override<MutationObserverIdleResult<unknown, any, LoginData, unknown>, { mutate: UseMutateFunction<unknown, any, LoginData, unknown>; }> & { ...; }' is not assignable to type 'Override<MutationObserverIdleResult<{ user: User; }, Error, LoginData, unknown>, { mutate: UseMutateFunction<{ user: User; }, Error, LoginData, unknown>; }>'.
+        Types of property 'mutate' are incompatible.
+          Type 'UseMutateFunction<unknown, any, LoginData, unknown>' is not assignable to type 'UseMutateFunction<{ user: User; }, Error, LoginData, unknown>'.
+            Types of parameters 'options' and 'options' are incompatible.
+              Type 'MutateOptions<{ user: User; }, Error, LoginData, unknown> | undefined' is not assignable to type 'MutateOptions<unknown, any, LoginData, unknown> | undefined'.
+                Type 'MutateOptions<{ user: User; }, Error, LoginData, unknown>' is not assignable to type 'MutateOptions<unknown, any, LoginData, unknown>'.
+                  Type 'unknown' is not assignable to type '{ user: User; }'.
+Error: client/src/hooks/use-auth.tsx(117,9): error TS2322: Type 'UseMutationResult<unknown, any, RegisterData, unknown>' is not assignable to type 'UseMutationResult<{ user: User; }, Error, RegisterData>'.
+  Type 'Override<MutationObserverIdleResult<unknown, any, RegisterData, unknown>, { mutate: UseMutateFunction<unknown, any, RegisterData, unknown>; }> & { ...; }' is not assignable to type 'UseMutationResult<{ user: User; }, Error, RegisterData>'.
+    Type 'Override<MutationObserverIdleResult<unknown, any, RegisterData, unknown>, { mutate: UseMutateFunction<unknown, any, RegisterData, unknown>; }> & { ...; }' is not assignable to type 'Override<MutationObserverIdleResult<{ user: User; }, Error, RegisterData, unknown>, { mutate: UseMutateFunction<{ user: User; }, Error, RegisterData, unknown>; }> & { ...; }'.
+      Type 'Override<MutationObserverIdleResult<unknown, any, RegisterData, unknown>, { mutate: UseMutateFunction<unknown, any, RegisterData, unknown>; }> & { ...; }' is not assignable to type 'Override<MutationObserverIdleResult<{ user: User; }, Error, RegisterData, unknown>, { mutate: UseMutateFunction<{ user: User; }, Error, RegisterData, unknown>; }>'.
+        Types of property 'mutate' are incompatible.
+          Type 'UseMutateFunction<unknown, any, RegisterData, unknown>' is not assignable to type 'UseMutateFunction<{ user: User; }, Error, RegisterData, unknown>'.
+            Types of parameters 'options' and 'options' are incompatible.
+              Type 'MutateOptions<{ user: User; }, Error, RegisterData, unknown> | undefined' is not assignable to type 'MutateOptions<unknown, any, RegisterData, unknown> | undefined'.
+                Type 'MutateOptions<{ user: User; }, Error, RegisterData, unknown>' is not assignable to type 'MutateOptions<unknown, any, RegisterData, unknown>'.
+                  Type 'unknown' is not assignable to type '{ user: User; }'.
+Error: client/src/lib/queryClient.ts(31,3): error TS2322: Type '({ queryKey }: { queryKey: QueryKey; signal: AbortSignal; meta: Record<string, unknown> | undefined; pageParam?: unknown; direction?: unknown; }) => Promise<T | null>' is not assignable to type 'QueryFunction<T>'.
+  Type 'Promise<T | null>' is not assignable to type 'T | Promise<T>'.
+    Type 'Promise<T | null>' is not assignable to type 'Promise<T>'.
+      Type 'T | null' is not assignable to type 'T'.
+        'T' could be instantiated with an arbitrary type which could be unrelated to 'T | null'.
+Error: server/services/linkedin.ts(58,11): error TS18046: 'profile' is of type 'unknown'.
+Error: server/services/linkedin.ts(59,18): error TS18046: 'profile' is of type 'unknown'.
+Error: server/services/linkedin.ts(60,17): error TS18046: 'profile' is of type 'unknown'.
+Error: server/services/linkedin.ts(61,23): error TS18046: 'profile' is of type 'unknown'.
+Error: server/services/linkedin.ts(71,12): error TS18046: 'result' is of type 'unknown'.
+Error: server/services/linkedin.ts(92,12): error TS18046: 'response' is of type 'unknown'.
+Error: server/services/linkedin.ts(130,20): error TS18046: 'data' is of type 'unknown'.
+Error: server/services/linkedin.ts(131,18): error TS18046: 'data' is of type 'unknown'.
+Error: server/services/linkedin.ts(173,20): error TS18046: 'data' is of type 'unknown'.
+Error: server/services/linkedin.ts(174,18): error TS18046: 'data' is of type 'unknown'.
+Error: server/services/scheduler.ts(43,13): error TS18046: 'result' is of type 'unknown'.
+Error: server/services/scheduler.ts(43,37): error TS18046: 'result' is of type 'unknown'.
+Error: server/services/scheduler.ts(44,47): error TS18046: 'result' is of type 'unknown'.
+Error: server/services/scheduler.ts(44,74): error TS18046: 'result' is of type 'unknown'.
+Error: Process completed with exit code 2.

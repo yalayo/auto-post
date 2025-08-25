@@ -52,12 +52,12 @@ export class LinkedInService {
     const profile = await this.makeRequest(
       '/people/~:(id,firstName,lastName,profilePicture(displayImage~:playableStreams))',
       accessToken
-    );
+    ) as any;
 
     return {
       id: profile.id,
-      firstName: profile.firstName.localized.en_US,
-      lastName: profile.lastName.localized.en_US,
+      firstName: profile.firstName?.localized?.en_US || profile.firstName,
+      lastName: profile.lastName?.localized?.en_US || profile.lastName,
       profilePicture: profile.profilePicture?.displayImage?.elements?.[0]?.identifiers?.[0]?.identifier,
     };
   }
@@ -66,9 +66,9 @@ export class LinkedInService {
     const result = await this.makeRequest(
       '/emailAddress?q=members&projection=(elements*(handle~))',
       accessToken
-    );
+    ) as any;
     
-    return result.elements[0]?.['handle~']?.emailAddress || '';
+    return result.elements?.[0]?.['handle~']?.emailAddress || '';
   }
 
   async publishPost(accessToken: string, content: string, personUrn: string): Promise<string> {
@@ -88,7 +88,7 @@ export class LinkedInService {
       }
     };
 
-    const response = await this.makeRequest('/ugcPosts', accessToken, 'POST', postData);
+    const response = await this.makeRequest('/ugcPosts', accessToken, 'POST', postData) as any;
     return response.id;
   }
 
@@ -125,7 +125,7 @@ export class LinkedInService {
       throw new Error('Failed to refresh LinkedIn access token');
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     return {
       accessToken: data.access_token,
       expiresIn: data.expires_in,
@@ -168,7 +168,7 @@ export class LinkedInService {
       throw new Error(`Failed to exchange code for token: ${errorText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     return {
       accessToken: data.access_token,
       expiresIn: data.expires_in,
