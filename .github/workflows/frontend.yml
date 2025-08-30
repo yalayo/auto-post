@@ -22,14 +22,17 @@ jobs:
           cli: 1.11.1.1347
       - name: Build the application
         run: |
+            cd ./bases/frontend
             npm ci
             npm run release
+            ls -ls 
+            ls -la out/
             cp -R public/ out/
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
             name: compilation
-            path: ./out/
+            path: ./bases/frontend/out/
 
   deploy:
     name: Deploy the app
@@ -65,4 +68,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           wranglerVersion: "4.7.0"
           workingDirectory: "./"
-          command: pages deploy ./public --project-name pmanagement-frontend
+          command: pages deploy ./public --project-name aposter-frontend
