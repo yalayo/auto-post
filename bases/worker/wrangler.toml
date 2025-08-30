@@ -15,7 +15,7 @@ enabled = true
 
 [[d1_databases]]
 binding = "DB"
-database_name = "DB"
+database_name = "autoposter-db"
 database_id = "{{db id}}"
 
 [[durable_objects.bindings]]
