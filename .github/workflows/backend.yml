@@ -18,6 +18,11 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@11.0
+        with:
+          cli: 1.11.1.1347
+
       - name: Install dependencies
         run: cd bases/worker && npm ci
 
