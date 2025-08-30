@@ -1,0 +1,68 @@
+name: Frontend
+
+on:
+    push:
+      branches: [ main ]
+      #paths:
+        #- '.github/workflows/frontend.yml'
+        #- 'bases/frontend/**'
+        #- 'projects/cloudflare/**'
+jobs:
+  build:
+    name: Build with shadow-cljs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@11.0
+        with:
+          cli: 1.11.1.1347
+      - name: Build the application
+        run: |
+            npm ci
+            npm run release
+            cp -R public/ out/
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: compilation
+            path: ./out/
+
+  deploy:
+    name: Deploy the app
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Create Cloudflare Pages project with Terraform
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_domain_zone_id: ${{ secrets.ZONE_ID }}
+
+        run: |
+            cd ./bases/frontend/terraform
+            terraform init
+            terraform apply -target=cloudflare_pages_project.pages_project -auto-approve
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+            name: compilation
+      # Deploy to Cloudflare Pages
+      - name: Deploy frontend
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: "4.7.0"
+          workingDirectory: "./"
+          command: pages deploy ./public --project-name pmanagement-frontend
