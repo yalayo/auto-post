@@ -41,17 +41,20 @@
 									 (assoc ret (keyword k) v))
 								 {}))))
 
-(defn with-handler
-	"Given a Reitit router and a handler function, returns an entry point function for Cloudflare Worker"
-	[router handler]
+(defn with-handler [router handler]
 	(fn [request ^js env ctx]
 		(let [url (js/URL. (.-url request))
 					route (r/match-by-path router (.-pathname url))]
 			(reset! ENV env)
 			(reset! CTX ctx)
 			(reset! DB (.-DB env))
-			(js/Promise. (fn [resolve reject]
-										 (resolve (handler (with-params url route) request env ctx)))))))
+			(js/Promise.
+				(fn [resolve reject]
+					(if route
+						(resolve (handler (with-params url route) request env ctx))
+						;; fallback when route is not found
+						(resolve (response-edn {:error "Route not found"}
+																	 {:status 404}))))))))
 
 (defn js->clj
 	"Recursively transforms JavaScript arrays into ClojureScript
