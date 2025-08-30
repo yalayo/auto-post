@@ -1,0 +1,27 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "uix-cloudflare-template"
+main = "out/main.js"
+compatibility_date = "2025-02-04"
+assets = { directory = "./public" }
+#routes = [
+#    { pattern = "your-domain.com", custom_domain = true },
+#]
+
+# Workers Logs
+# Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
+# Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "DB"
+database_id = "{{db id}}"
+
+[[durable_objects.bindings]]
+name = "DO_PRESENCE"
+class_name = "PresenceDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["PresenceDurableObject"]
