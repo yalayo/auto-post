@@ -1,5 +1,4 @@
-#:schema node_modules/wrangler/config-schema.json
-name = "uix-cloudflare-template"
+name = "linkedin-autoposter-ai"
 main = "out/main.js"
 compatibility_date = "2025-02-04"
 assets = { directory = "./public" }
@@ -7,9 +6,6 @@ assets = { directory = "./public" }
 #    { pattern = "your-domain.com", custom_domain = true },
 #]
 
-# Workers Logs
-# Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
-# Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
 [observability]
 enabled = true
 
@@ -17,11 +13,3 @@ enabled = true
 binding = "DB"
 database_name = "autoposter-db"
 database_id = "{{db id}}"
-
-[[durable_objects.bindings]]
-name = "DO_PRESENCE"
-class_name = "PresenceDurableObject"
-
-[[migrations]]
-tag = "v1"
-new_classes = ["PresenceDurableObject"]
