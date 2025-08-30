@@ -22,7 +22,9 @@ jobs:
         run: cd bases/worker && npm ci
 
       - name: Build application
-        run: cd bases/worker && npm run release
+        run: |
+          cd bases/worker 
+          npm run release
 
       - name: Inject DATABASE_ID into wrangler.toml
         run: |
